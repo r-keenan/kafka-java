@@ -2,6 +2,7 @@ package org.example.demos.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -13,9 +14,9 @@ import java.util.Arrays;
 import java.util.Properties;
 
 
-public class ConsumerDemoWithShutdown {
+public class ConsumerDemoCooperative {
 
-    private static final Logger log = LoggerFactory.getLogger(ConsumerDemoWithShutdown.class.getSimpleName());
+    private static final Logger log = LoggerFactory.getLogger(ConsumerDemoCooperative.class.getSimpleName());
 
     public static void main(String[] args) {
         log.info("I am a Kafka Consumer");
@@ -35,6 +36,7 @@ public class ConsumerDemoWithShutdown {
         properties.setProperty("group.id", groupId);
         // read from entire history from the topic
         properties.setProperty("auto.offset.reset", "earliest");
+        properties.setProperty("partition.assignment.strategy", CooperativeStickyAssignor.class.getName());
 
         // create a Consumer
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
@@ -42,7 +44,7 @@ public class ConsumerDemoWithShutdown {
         // get a reference to the main thread
         final Thread mainThread = Thread.currentThread();
 
-       
+
         // adding the shutdown hook
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
